@@ -14,8 +14,8 @@ namespace TrollGame
 
         public Board(string[] boardLines)
         {
-            Width = boardLines[0].Length;
-            Height = boardLines.GetLength(0);
+            Width = boardLines[0].Length + 2;
+            Height = boardLines.GetLength(0) + 2;
 
             GameBoard = new Entity[Width, Height];
 
@@ -23,7 +23,15 @@ namespace TrollGame
             {
                 for (var idx = 0; idx < Width; idx++)
                 {
-                    GameBoard[idx, idy] = new Entity((Character)boardLines[idy][idx]);
+                    if (idx == 0 || idy == 0 || idx == Width - 1 || idy == Height - 1)
+                    {
+                        GameBoard[idx, idy] = new Entity(Character.Wall);
+                    }
+                    else
+                    {
+                        GameBoard[idx, idy] = new Entity((Character)boardLines[idy-1][idx-1]);
+                    }
+                    
                 }
             }
         }
