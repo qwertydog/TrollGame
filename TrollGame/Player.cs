@@ -10,13 +10,14 @@ namespace TrollGame
 {
     internal class Player : Entity
     {
-        public Direction Direction { get; set; }
+        private Direction Direction { get; set; }
 
         private readonly Board _board;
         private int _xpos;
         private int _ypos;
+        private readonly IList<Troll> _trolls;
 
-        public Player(Character character, Random rand, Board board, int xpos, int ypos) : base(character)
+        public Player(Character character, Random rand, IList<Troll> trolls, Board board, int xpos, int ypos) : base(character)
         {
             var values = Enum.GetValues(typeof(Direction));
             Direction = (Direction)values.GetValue(rand.Next(values.Length));
@@ -41,39 +42,51 @@ namespace TrollGame
             _board = board;
             _xpos = xpos;
             _ypos = ypos;
+            _trolls = trolls;
         }
 
-        public bool Move(Direction direction)
+        
+        public bool Move(Direction direction) // Returns true if next move is the exit
         {
+            Entity nextSquare;
+
             switch (direction)
             {
                 case Direction.Up:
-                    var nextSquare = _board.GameBoard[_xpos, _ypos - 1];
+                    nextSquare = _board.GameBoard[_xpos, _ypos - 1];
 
                     if (Direction != direction)
                     {
                         Direction = direction;
                         _board.SetCharacter(_xpos, _ypos, Character.PlayerUp);
                     }
-                    else if (nextSquare.Character == Character.Exit)
+                    else switch (nextSquare.Character)
                     {
-                        return true;
-                    }
-                    else if (nextSquare.Character == Character.Blank)
-                    {
-                        _board.SetCharacter(_xpos, _ypos - 1, Character.PlayerUp);
-                        _board.SetCharacter(_xpos, _ypos, Character.Blank);
-                        _ypos--;
-                    }
-                    else if (nextSquare.Character == Character.Wall)
-                    {
-                        if (_board.GameBoard[_xpos, _ypos - 2].Character != Character.Wall)
-                        {
-                            _board.SetCharacter(_xpos, _ypos - 2, Character.Wall);
+                        case Character.Exit:
+                            return true;
+                        case Character.Blank:
                             _board.SetCharacter(_xpos, _ypos - 1, Character.PlayerUp);
                             _board.SetCharacter(_xpos, _ypos, Character.Blank);
                             _ypos--;
-                        }
+                            break;
+                        case Character.Wall:
+                            if (_board.GameBoard[_xpos, _ypos - 2].Character != Character.Wall)
+                            {
+                                if (_board.GameBoard[_xpos, _ypos - 2].Character == Character.Troll)
+                                {
+                                    foreach (var troll in _trolls)
+                                    {
+                                        if (troll.X != _xpos || troll.Y != _ypos - 2) continue;
+                                        _trolls.Remove(troll);
+                                        break;
+                                    }
+                                }
+                                _board.SetCharacter(_xpos, _ypos - 2, Character.Wall);
+                                _board.SetCharacter(_xpos, _ypos - 1, Character.PlayerUp);
+                                _board.SetCharacter(_xpos, _ypos, Character.Blank);
+                                _ypos--;
+                            }
+                            break;
                     }
                     break;
                 case Direction.Right:
@@ -84,25 +97,33 @@ namespace TrollGame
                         Direction = direction;
                         _board.SetCharacter(_xpos, _ypos, Character.PlayerRight);
                     }
-                    else if (nextSquare.Character == Character.Exit)
+                    else switch (nextSquare.Character)
                     {
-                        return true;
-                    }
-                    else if (nextSquare.Character == Character.Blank)
-                    {
-                        _board.SetCharacter(_xpos + 1, _ypos, Character.PlayerRight);
-                        _board.SetCharacter(_xpos, _ypos, Character.Blank);
-                        _xpos++;
-                    }
-                    else if (nextSquare.Character == Character.Wall)
-                    {
-                        if (_board.GameBoard[_xpos + 2, _ypos].Character != Character.Wall)
-                        {
-                            _board.SetCharacter(_xpos + 2, _ypos, Character.Wall);
+                        case Character.Exit:
+                            return true;
+                        case Character.Blank:
                             _board.SetCharacter(_xpos + 1, _ypos, Character.PlayerRight);
                             _board.SetCharacter(_xpos, _ypos, Character.Blank);
                             _xpos++;
-                        }
+                            break;
+                        case Character.Wall:
+                            if (_board.GameBoard[_xpos + 2, _ypos].Character != Character.Wall)
+                            {
+                                if (_board.GameBoard[_xpos + 2, _ypos].Character == Character.Troll)
+                                {
+                                    foreach (var troll in _trolls)
+                                    {
+                                        if (troll.X != _xpos + 2 || troll.Y != _ypos) continue;
+                                        _trolls.Remove(troll);
+                                        break;
+                                    }
+                                }
+                                _board.SetCharacter(_xpos + 2, _ypos, Character.Wall);
+                                _board.SetCharacter(_xpos + 1, _ypos, Character.PlayerRight);
+                                _board.SetCharacter(_xpos, _ypos, Character.Blank);
+                                _xpos++;
+                            }
+                            break;
                     }
                     break;
                 case Direction.Down:
@@ -113,25 +134,33 @@ namespace TrollGame
                         Direction = direction;
                         _board.SetCharacter(_xpos, _ypos, Character.PlayerDown);
                     }
-                    else if (_board.GameBoard[_xpos, _ypos + 1].Character == Character.Exit)
+                    else switch (nextSquare.Character)
                     {
-                        return true;
-                    }
-                    else if (_board.GameBoard[_xpos, _ypos + 1].Character == Character.Blank)
-                    {
-                        _board.SetCharacter(_xpos, _ypos + 1, Character.PlayerDown);
-                        _board.SetCharacter(_xpos, _ypos, Character.Blank);
-                        _ypos++;
-                    }
-                    else if (nextSquare.Character == Character.Wall)
-                    {
-                        if (_board.GameBoard[_xpos, _ypos + 2].Character != Character.Wall)
-                        {
-                            _board.SetCharacter(_xpos, _ypos + 2, Character.Wall);
+                        case Character.Exit:
+                            return true;
+                        case Character.Blank:
                             _board.SetCharacter(_xpos, _ypos + 1, Character.PlayerDown);
                             _board.SetCharacter(_xpos, _ypos, Character.Blank);
                             _ypos++;
-                        }
+                            break;
+                        case Character.Wall:
+                            if (_board.GameBoard[_xpos, _ypos + 2].Character != Character.Wall)
+                            {
+                                if (_board.GameBoard[_xpos, _ypos + 2].Character == Character.Troll)
+                                {
+                                    foreach (var troll in _trolls)
+                                    {
+                                        if (troll.X != _xpos || troll.Y != _ypos + 2) continue;
+                                        _trolls.Remove(troll);
+                                        break;
+                                    }
+                                }
+                                _board.SetCharacter(_xpos, _ypos + 2, Character.Wall);
+                                _board.SetCharacter(_xpos, _ypos + 1, Character.PlayerDown);
+                                _board.SetCharacter(_xpos, _ypos, Character.Blank);
+                                _ypos++;
+                            }
+                            break;
                     }
                     break;
                 case Direction.Left:
@@ -142,25 +171,33 @@ namespace TrollGame
                         Direction = direction;
                         _board.SetCharacter(_xpos, _ypos, Character.PlayerLeft);
                     }
-                    else if (nextSquare.Character == Character.Exit)
+                    else switch (nextSquare.Character)
                     {
-                        return true;
-                    }
-                    else if (nextSquare.Character == Character.Blank)
-                    {
-                        _board.SetCharacter(_xpos - 1, _ypos, Character.PlayerLeft);
-                        _board.SetCharacter(_xpos, _ypos, Character.Blank);
-                        _xpos--;
-                    }
-                    else if (nextSquare.Character == Character.Wall)
-                    {
-                        if (_board.GameBoard[_xpos - 2, _ypos].Character != Character.Wall)
-                        {
-                            _board.SetCharacter(_xpos - 2, _ypos, Character.Wall);
+                        case Character.Exit:
+                            return true;
+                        case Character.Blank:
                             _board.SetCharacter(_xpos - 1, _ypos, Character.PlayerLeft);
                             _board.SetCharacter(_xpos, _ypos, Character.Blank);
                             _xpos--;
-                        }
+                            break;
+                        case Character.Wall:
+                            if (_board.GameBoard[_xpos - 2, _ypos].Character != Character.Wall)
+                            {
+                                if (_board.GameBoard[_xpos - 2, _ypos].Character == Character.Troll)
+                                {
+                                    foreach (var troll in _trolls)
+                                    {
+                                        if (troll.X != _xpos - 2 || troll.Y != _ypos) continue;
+                                        _trolls.Remove(troll);
+                                        break;
+                                    }
+                                }
+                                _board.SetCharacter(_xpos - 2, _ypos, Character.Wall);
+                                _board.SetCharacter(_xpos - 1, _ypos, Character.PlayerLeft);
+                                _board.SetCharacter(_xpos, _ypos, Character.Blank);
+                                _xpos--;
+                            }
+                            break;
                     }
                     break;
             }

@@ -10,25 +10,33 @@ namespace TrollGame
     internal class TrollGame
     {
         private readonly Board _board;
+        private readonly Player _player;
         private Random _rand;
-        private bool _isFinished;
-        private Player _player;
+        private readonly List<Troll> _trolls;
 
-        public TrollGame(Board board, Random rand)
+        public TrollGame(Board board, Random rand, AStar aStar, int numTrolls)
         {
             _board = board;
             _rand = rand;
+            _trolls = new List<Troll>(numTrolls);
 
             while (true)
             {
                 var xpos = rand.Next(_board.Width);
                 var ypos = rand.Next(_board.Height);
 
-                if (_board.GameBoard[xpos, ypos].Character == Character.Blank)
+                if (_board.GameBoard[xpos, ypos].Character != Character.Blank) continue;
+
+                if (_player == null)
                 {
-                    _player = new Player(Character.PlayerDown, rand, board, xpos, ypos);
+                    _player = new Player(Character.PlayerDown, rand, _trolls, board, xpos, ypos);
                     _board.SetCharacter(xpos, ypos, _player.Character);
-                    break;
+                }
+                else
+                {
+                    if (_trolls.Count == numTrolls) break;
+                    _trolls.Add(new Troll(Character.Troll, rand, board, aStar, xpos, ypos));
+                    _board.SetCharacter(xpos, ypos, Character.Troll);
                 }
             }
         }
@@ -37,30 +45,61 @@ namespace TrollGame
 
         public void Run()
         {
-            while (!_isFinished)
+            var isFinished = false;
+            var playersTurn = true;
+            var playerWon = true;
+
+            while (!isFinished)
             {
                 _board.Print();
 
-                var input = Console.ReadKey(true);
-
-                switch (input.Key)
+                if (playersTurn)
                 {
-                    case ConsoleKey.UpArrow:
-                        _isFinished = _player.Move(Direction.Up);
-                        break;
-                    case ConsoleKey.DownArrow:
-                        _isFinished = _player.Move(Direction.Down);
-                        break;
-                    case ConsoleKey.RightArrow:
-                        _isFinished = _player.Move(Direction.Right);
-                        break;
-                    case ConsoleKey.LeftArrow:
-                        _isFinished = _player.Move(Direction.Left);
-                        break;
+                    var input = Console.ReadKey(true);
+
+                    switch (input.Key)
+                    {
+                        case ConsoleKey.UpArrow:
+                            isFinished = _player.Move(Direction.Up);
+                            break;
+                        case ConsoleKey.DownArrow:
+                            isFinished = _player.Move(Direction.Down);
+                            break;
+                        case ConsoleKey.RightArrow:
+                            isFinished = _player.Move(Direction.Right);
+                            break;
+                        case ConsoleKey.LeftArrow:
+                            isFinished = _player.Move(Direction.Left);
+                            break;
+                    }
+                    playersTurn = false;
                 }
+                else
+                {
+                    foreach (var troll in _trolls)
+                    {
+                        troll.Move();
+                    }
+                    playersTurn = true;
+                }
+
+                if (_board.GetPlayerLocation() == null)
+                {
+                    playerWon = false;
+                    break;
+                }
+
             }
 
-            Console.WriteLine("You won!");
+            if (playerWon)
+            {
+                Console.WriteLine("You won!");
+            }
+            else
+            {
+                Console.WriteLine("You lost :(");
+            }
+
             while (true)
             {
                 Console.Read();

@@ -8,12 +8,15 @@ namespace TrollGame
 {
     internal class Board
     {
+
         public Entity[,] GameBoard { get; }
         public int Width { get; }
         public int Height { get; }
 
         public Board(string[] boardLines)
         {
+            Console.CursorVisible = false;
+
             Width = boardLines[0].Length + 2;
             Height = boardLines.GetLength(0) + 2;
 
@@ -75,6 +78,10 @@ namespace TrollGame
                         character == Character.PlayerRight)
                     {
                         Console.ForegroundColor = ConsoleColor.Cyan;
+                    }
+                    else if (character == Character.Troll)
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
                     }
                     else
                     {

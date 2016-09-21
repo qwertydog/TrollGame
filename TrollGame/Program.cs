@@ -14,13 +14,17 @@ namespace TrollGame
             const string boardFileName = "board.txt";
 
             var boardLines = File.ReadAllLines(boardFileName);
+
             var board = new Board(boardLines);
 
             var random = new Random();
 
-            Console.CursorVisible = false;
+            const int numTrolls = 4;
 
-            var game = new TrollGame(board, random);
+            var aStar = new AStar();
+
+            var game = new TrollGame(board, random, aStar, numTrolls);
+
             game.Run();
         }
     }
