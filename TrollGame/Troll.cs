@@ -14,17 +14,11 @@ namespace TrollGame
         private readonly Random _rand;
         private readonly AStar _aStar;
 
-        public int X { get; private set; }
-        public int Y { get; private set; }
-
-        public Troll(Character character, Random rand, Board board, AStar aStar, int xpos, int ypos) : base(character)
+        public Troll(Character character, Random rand, Board board, AStar aStar, int xpos, int ypos) : base(character, xpos, ypos)
         {
             _board = board;
             _rand = rand;
             _aStar = aStar;
-
-            X = xpos;
-            Y = ypos;
         }
 
         public void Move() // Randomly choose what direction to go in
@@ -34,7 +28,7 @@ namespace TrollGame
 
             while (!moveFinished)
             {
-                var direction = (Direction)values.GetValue(_rand.Next(values.Length));
+                var direction = (Direction)values.GetValue(_rand.Next(values.Length)); // aStar.GetMove(X, Y, _player.X, _player.Y);
                 Entity nextSquare;
 
                 switch (direction)
@@ -55,7 +49,11 @@ namespace TrollGame
                                 moveFinished = true;
                                 break;
                             case Character.Wall:
-                                if (_board.GameBoard[X, Y + 2].Character != Character.Wall)
+                                if (_board.GameBoard[X, Y + 2].Character != Character.Wall &&
+                                    _board.GameBoard[X, Y + 2].Character != Character.PlayerDown &&
+                                    _board.GameBoard[X, Y + 2].Character != Character.PlayerUp &&
+                                    _board.GameBoard[X, Y + 2].Character != Character.PlayerLeft &&
+                                    _board.GameBoard[X, Y + 2].Character != Character.PlayerRight)
                                 {
                                     _board.SetCharacter(X, Y + 2, Character.Wall);
                                     _board.SetCharacter(X, Y + 1, Character.Troll);
@@ -82,7 +80,11 @@ namespace TrollGame
                                 moveFinished = true;
                                 break;
                             case Character.Wall:
-                                if (_board.GameBoard[X, Y - 2].Character != Character.Wall)
+                                if (_board.GameBoard[X, Y - 2].Character != Character.Wall &&
+                                    _board.GameBoard[X, Y - 2].Character != Character.PlayerDown &&
+                                    _board.GameBoard[X, Y - 2].Character != Character.PlayerUp &&
+                                    _board.GameBoard[X, Y - 2].Character != Character.PlayerLeft &&
+                                    _board.GameBoard[X, Y - 2].Character != Character.PlayerRight)
                                 {
                                     _board.SetCharacter(X, Y - 2, Character.Wall);
                                     _board.SetCharacter(X, Y - 1, Character.Troll);
@@ -109,7 +111,11 @@ namespace TrollGame
                                 moveFinished = true;
                                 break;
                             case Character.Wall:
-                                if (_board.GameBoard[X - 2, Y].Character != Character.Wall)
+                                if (_board.GameBoard[X - 2, Y].Character != Character.Wall &&
+                                    _board.GameBoard[X - 2, Y].Character != Character.PlayerDown &&
+                                    _board.GameBoard[X - 2, Y].Character != Character.PlayerUp &&
+                                    _board.GameBoard[X - 2, Y].Character != Character.PlayerLeft &&
+                                    _board.GameBoard[X - 2, Y].Character != Character.PlayerRight)
                                 {
                                     _board.SetCharacter(X - 2, Y, Character.Wall);
                                     _board.SetCharacter(X - 1, Y, Character.Troll);
@@ -136,7 +142,11 @@ namespace TrollGame
                                 moveFinished = true;
                                 break;
                             case Character.Wall:
-                                if (_board.GameBoard[X + 2, Y].Character != Character.Wall)
+                                if (_board.GameBoard[X + 2, Y].Character != Character.Wall &&
+                                    _board.GameBoard[X + 2, Y].Character != Character.PlayerDown &&
+                                    _board.GameBoard[X + 2, Y].Character != Character.PlayerUp &&
+                                    _board.GameBoard[X + 2, Y].Character != Character.PlayerLeft &&
+                                    _board.GameBoard[X + 2, Y].Character != Character.PlayerRight)
                                 {
                                     _board.SetCharacter(X + 2, Y, Character.Wall);
                                     _board.SetCharacter(X + 1, Y, Character.Troll);

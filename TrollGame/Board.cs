@@ -28,11 +28,11 @@ namespace TrollGame
                 {
                     if (idx == 0 || idy == 0 || idx == Width - 1 || idy == Height - 1)
                     {
-                        GameBoard[idx, idy] = new Entity(Character.Wall);
+                        GameBoard[idx, idy] = new Entity(Character.Wall, idx, idy);
                     }
                     else
                     {
-                        GameBoard[idx, idy] = new Entity((Character)boardLines[idy-1][idx-1]);
+                        GameBoard[idx, idy] = new Entity((Character)boardLines[idy-1][idx-1], idx, idy);
                     }
                     
                 }
@@ -59,7 +59,7 @@ namespace TrollGame
 
         internal void SetCharacter(int xpos, int ypos, Character character)
         {
-            GameBoard[xpos, ypos] = new Entity(character);
+            GameBoard[xpos, ypos] = new Entity(character, xpos, ypos);
         }
 
         internal void Print()

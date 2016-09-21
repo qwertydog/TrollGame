@@ -20,7 +20,7 @@ namespace TrollGame
             _rand = rand;
             _trolls = new List<Troll>(numTrolls);
 
-            while (true)
+            while (_trolls.Count != numTrolls)
             {
                 var xpos = rand.Next(_board.Width);
                 var ypos = rand.Next(_board.Height);
@@ -29,12 +29,31 @@ namespace TrollGame
 
                 if (_player == null)
                 {
-                    _player = new Player(Character.PlayerDown, rand, _trolls, board, xpos, ypos);
-                    _board.SetCharacter(xpos, ypos, _player.Character);
+                    var values = Enum.GetValues(typeof(Direction));
+                    var direction = (Direction)values.GetValue(rand.Next(values.Length));
+
+                    var character = Character.PlayerUp;
+                    switch (direction)
+                    {
+                        case Direction.Down:
+                            character = Character.PlayerDown;
+                            break;
+                        case Direction.Left:
+                            character = Character.PlayerLeft;
+                            break;
+                        case Direction.Up:
+                            character = Character.PlayerUp;
+                            break;
+                        case Direction.Right:
+                            character = Character.PlayerRight;
+                            break;
+                    }
+
+                    _player = new Player(character, _trolls, board, xpos, ypos);
+                    _board.SetCharacter(xpos, ypos, character);
                 }
                 else
                 {
-                    if (_trolls.Count == numTrolls) break;
                     _trolls.Add(new Troll(Character.Troll, rand, board, aStar, xpos, ypos));
                     _board.SetCharacter(xpos, ypos, Character.Troll);
                 }
